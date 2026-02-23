@@ -1,0 +1,43 @@
+{
+  "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "historyId": "some-stable-hash-based-on-test-identity",
+  "name": "User can log in with valid credentials",
+  "fullName": "com.example.auth.LoginTest#validLogin",
+  "status": "failed",
+  "start": 1708600000000,
+  "stop":  1708600003241,
+  "statusDetails": {
+    "message": "Expected status code 200 but was 401",
+    "trace": "java.lang.AssertionError: Expected status code 200 but was 401\n\tat com.example.auth.LoginTest.validLogin(LoginTest.java:52)"
+  },
+  "labels": [
+    { "name": "tag",         "value": "@core"           },
+    { "name": "tag",         "value": "@smoke"          },
+    { "name": "suite",       "value": "Authentication"  },
+    { "name": "parentSuite", "value": "E2E Tests"       },
+    { "name": "feature",     "value": "Login"           },
+    { "name": "severity",    "value": "critical"        }
+  ],
+  "parameters": [],
+  "steps": [
+    {
+      "name": "Open login page",
+      "status": "passed",
+      "start": 1708600000000,
+      "stop":  1708600000800
+    },
+    {
+      "name": "Enter credentials",
+      "status": "passed",
+      "start": 1708600000800,
+      "stop":  1708600001200
+    },
+    {
+      "name": "Click submit",
+      "status": "failed",
+      "start": 1708600001200,
+      "stop":  1708600003241
+    }
+  ],
+  "attachments": []
+}
