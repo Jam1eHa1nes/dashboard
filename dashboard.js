@@ -471,15 +471,25 @@ function fmtDuration(ms) {
 // Initialisation
 // ═════════════════════════════════════════════════════════════
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Sync core-tag label with loaded config
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Require a valid session — redirects to login.html if not signed in
+  const session = await requireAuth();
+  if (!session) return;
+
+  // 2. Show signed-in user in the header
+  showUserInfo();
+
+  // 3. Load centralised config (settings.json + localStorage overrides)
+  await loadConfig();
+
+  // 4. Sync UI labels
   const label = document.getElementById('core-tag-label');
   if (label) label.textContent = config.coreTag;
 
-  // Start auto-refresh timer if configured
+  // 5. Start auto-refresh timer
   setupAutoRefresh();
 
-  // Auto-load if an S3 URL is already configured
+  // 6. Auto-load if S3 is configured
   if (config.s3BaseUrl) {
     loadDashboard();
   }

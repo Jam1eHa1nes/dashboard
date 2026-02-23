@@ -214,6 +214,28 @@ body {
   filter: none;
 }
 
+.btn-signout {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 7px 12px;
+}
+.btn-signout:hover {
+  color: var(--fail);
+  border-color: rgba(255,77,106,0.4);
+  background: var(--fail-bg);
+}
+
+.user-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ============================================================
    Config Panel
    ============================================================ */
