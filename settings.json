@@ -1,0 +1,7 @@
+{
+  "s3BaseUrl":       "",
+  "environments":    ["qa", "pp"],
+  "project":         "",
+  "coreTag":         "@core",
+  "refreshInterval": 0
+}

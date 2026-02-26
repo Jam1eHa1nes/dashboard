@@ -16,14 +16,17 @@
   <!-- Header -->
   <header class="header">
     <div class="header-left">
-      <div class="header-logo">◈</div>
-      <h1 class="header-title">Test Automation Dashboard</h1>
+      <div class="brand-mark">A</div>
+      <span class="brand-name">Autonami</span>
+      <span class="header-title">Test Automation Dashboard</span>
     </div>
     <div class="header-right">
       <span id="last-updated" class="last-updated"></span>
       <button id="refresh-btn" class="btn btn-primary" onclick="loadDashboard()">↻ Refresh</button>
       <button class="btn btn-demo" onclick="loadDemoData()">▶ Load Demo</button>
       <button class="btn btn-secondary" onclick="toggleConfig()">⚙ Configure</button>
+      <span id="user-chip" class="user-chip" title=""></span>
+      <button class="btn btn-signout" onclick="signOut()">Sign Out</button>
     </div>
   </header>
 
@@ -97,7 +100,7 @@
 
     <!-- Empty state -->
     <div id="empty-state" class="empty-state">
-      <div class="empty-icon">◈</div>
+      <div class="empty-icon">A</div>
       <h2>No data loaded</h2>
       <p>Configure your S3 connection to load live results, or try the demo.</p>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
@@ -184,6 +187,8 @@
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
   <script src="config.js"></script>
   <script src="dashboard.js"></script>
   <script src="demo-data.js"></script>

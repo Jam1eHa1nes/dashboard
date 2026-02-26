@@ -1,43 +1,61 @@
 /**
  * config.js
  *
- * Manages dashboard configuration. Settings are persisted in localStorage
- * so they survive page refreshes.
+ * Configuration priority (highest → lowest):
+ *   1. settings.json  — committed to the repo, applies to ALL users
+ *   2. localStorage   — local overrides via the Configure panel (dev/debug only)
+ *   3. DEFAULT_CONFIG — hardcoded fallbacks
  *
- * S3 path structure expected:
- *   {s3BaseUrl}/{env}/{project}/*.json
+ * To change the S3 location for everyone: update settings.json and push to GitHub.
+ * Vercel redeploys automatically and all users get the new config on next page load.
  */
 
 const DEFAULT_CONFIG = {
-  s3BaseUrl:       '',           // e.g. https://my-bucket.s3.us-east-1.amazonaws.com
-  environments:    ['staging', 'production'],
-  project:         'my-project',
+  s3BaseUrl:       '',
+  environments:    ['qa', 'pp'],
+  project:         '',
   coreTag:         '@core',
-  refreshInterval: 0             // minutes; 0 = disabled
+  refreshInterval: 0
 };
 
-// Active config (merged with defaults on load)
 let config = { ...DEFAULT_CONFIG };
 
 /**
- * Load config from localStorage and merge with defaults.
- * Called once on startup.
+ * Fetch settings.json (centralised server config) and merge with
+ * any local localStorage overrides. Called once on DOMContentLoaded.
  */
-function loadConfig() {
+async function loadConfig() {
+  // 1. Try fetching the centralised settings.json
+  try {
+    const res      = await fetch('settings.json?_=' + Date.now()); // bust cache
+    const settings = await res.json();
+    config = { ...DEFAULT_CONFIG, ...settings };
+  } catch (e) {
+    console.warn('[Dashboard] Could not load settings.json, using defaults:', e);
+    config = { ...DEFAULT_CONFIG };
+  }
+
+  // 2. Apply any localStorage overrides on top (only non-empty values)
   try {
     const stored = localStorage.getItem('dashboard-config');
     if (stored) {
-      config = { ...DEFAULT_CONFIG, ...JSON.parse(stored) };
+      const local = JSON.parse(stored);
+      // Only override fields that are explicitly set locally and settings.json left blank
+      if (!config.s3BaseUrl  && local.s3BaseUrl)  config.s3BaseUrl  = local.s3BaseUrl;
+      if (!config.project    && local.project)    config.project    = local.project;
+      if (local.coreTag)         config.coreTag         = local.coreTag;
+      if (local.refreshInterval) config.refreshInterval = local.refreshInterval;
     }
   } catch (e) {
-    console.warn('[Dashboard] Could not read config from localStorage:', e);
+    console.warn('[Dashboard] Could not read localStorage config:', e);
   }
+
   return config;
 }
 
 /**
- * Read values from the config form, persist to localStorage,
- * then trigger a dashboard reload.
+ * Save the config form values to localStorage (local override only).
+ * To update for all users, edit settings.json and push to GitHub instead.
  */
 function saveConfig() {
   const raw = {
@@ -49,20 +67,12 @@ function saveConfig() {
     refreshInterval: parseInt(document.getElementById('cfg-refresh-interval').value, 10) || 0,
   };
 
-  // Validate
-  if (!raw.s3BaseUrl) {
-    alert('Please enter an S3 Base URL.');
-    return;
-  }
-  if (raw.environments.length === 0) {
-    alert('Please enter at least one environment name.');
-    return;
-  }
+  if (!raw.s3BaseUrl) { alert('Please enter an S3 Base URL.'); return; }
+  if (!raw.environments.length) { alert('Please enter at least one environment.'); return; }
 
   config = raw;
   localStorage.setItem('dashboard-config', JSON.stringify(config));
 
-  // Update the @core label in the header
   const label = document.getElementById('core-tag-label');
   if (label) label.textContent = config.coreTag;
 
@@ -71,9 +81,6 @@ function saveConfig() {
   loadDashboard();
 }
 
-/**
- * Populate the config form fields from the current config object.
- */
 function populateConfigForm() {
   document.getElementById('cfg-s3-url').value          = config.s3BaseUrl;
   document.getElementById('cfg-project').value          = config.project;
@@ -82,9 +89,8 @@ function populateConfigForm() {
   document.getElementById('cfg-refresh-interval').value = config.refreshInterval;
 }
 
-/** Toggle the config panel open/closed. */
 function toggleConfig() {
-  const panel = document.getElementById('config-panel');
+  const panel  = document.getElementById('config-panel');
   const hidden = panel.classList.contains('hidden');
   if (hidden) populateConfigForm();
   panel.classList.toggle('hidden');
@@ -99,6 +105,3 @@ function setupAutoRefresh() {
     _autoRefreshTimer = setInterval(loadDashboard, config.refreshInterval * 60 * 1000);
   }
 }
-
-// Bootstrap on script load
-loadConfig();
