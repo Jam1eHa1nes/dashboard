@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In — Autonami</title>
+  <title>Sign Up — Autonami</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     body { overflow: hidden; }
@@ -182,6 +182,16 @@
       margin-bottom: 16px;
     }
 
+    .login-success {
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: var(--radius);
+      color: #22c55e;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
     .login-switch {
       margin-top: 24px;
       text-align: center;
@@ -248,29 +258,38 @@
       </div>
     </div>
 
-    <!-- Right: Sign in form -->
+    <!-- Right: Sign up form -->
     <div class="login-form-panel">
       <div class="login-form-wrap">
 
-        <h1 class="login-form-title">Sign in</h1>
-        <p class="login-form-subtitle">Enter your credentials to access the dashboard</p>
+        <h1 class="login-form-title">Create an account</h1>
+        <p class="login-form-subtitle">Get started with Autonami for free</p>
 
-        <div id="login-error" class="login-error hidden"></div>
+        <div id="signup-error" class="login-error hidden"></div>
+        <div id="signup-success" class="login-success hidden"></div>
 
-        <form id="login-form">
+        <form id="signup-form">
+          <div class="login-field">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" placeholder="Jane Smith" required autocomplete="name">
+          </div>
           <div class="login-field">
             <label for="email">Email</label>
             <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
           </div>
           <div class="login-field">
             <label for="password">Password</label>
-            <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+            <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" minlength="8">
           </div>
-          <button type="submit" id="submit-btn" class="btn-signin">Sign In</button>
+          <div class="login-field">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" placeholder="••••••••" required autocomplete="new-password">
+          </div>
+          <button type="submit" id="submit-btn" class="btn-signin">Create Account</button>
         </form>
 
         <div class="login-switch">
-          Don't have an account? <a href="signup.html">Sign up</a>
+          Already have an account? <a href="login.html">Sign in</a>
         </div>
 
       </div>
@@ -286,34 +305,60 @@
       if (session) window.location.replace('index.html');
     })();
 
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const name     = document.getElementById('name').value.trim();
       const email    = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm-password').value;
       const btn      = document.getElementById('submit-btn');
 
-      btn.disabled    = true;
-      btn.textContent = 'Signing in…';
       hideError();
+      hideSuccess();
 
-      const { error } = await _supabase.auth.signInWithPassword({ email, password });
+      if (password !== confirm) {
+        showError('Passwords do not match.');
+        return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = 'Creating account…';
+
+      const { error } = await _supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name }
+        }
+      });
 
       if (error) {
         showError(error.message);
         btn.disabled    = false;
-        btn.textContent = 'Sign In';
+        btn.textContent = 'Create Account';
       } else {
-        window.location.replace('index.html');
+        showSuccess('Account created! Check your email to confirm your address before signing in.');
+        document.getElementById('signup-form').reset();
+        btn.disabled    = true;
+        btn.textContent = 'Account Created';
       }
     });
 
     function showError(msg) {
-      const el = document.getElementById('login-error');
+      const el = document.getElementById('signup-error');
       el.textContent = msg;
       el.classList.remove('hidden');
     }
     function hideError() {
-      document.getElementById('login-error').classList.add('hidden');
+      document.getElementById('signup-error').classList.add('hidden');
+    }
+    function showSuccess(msg) {
+      const el = document.getElementById('signup-success');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function hideSuccess() {
+      document.getElementById('signup-success').classList.add('hidden');
     }
   </script>
 </body>
