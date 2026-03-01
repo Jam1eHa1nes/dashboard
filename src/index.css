@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-bg text-text font-body;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1E2230 transparent;
+  }
+
+  *::-webkit-scrollbar         { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-track   { background: transparent; }
+  *::-webkit-scrollbar-thumb   { background: #1E2230; border-radius: 3px; }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: slideIn 0.2s ease-out;
+  }
+  .slide-in-from-right {
+    --tw-enter-translate-x: 1rem;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(var(--tw-enter-translate-x, 0));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
